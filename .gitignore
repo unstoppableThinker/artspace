@@ -1,0 +1,43 @@
+# ─── Environment ─────────────────────────────────────────────────────────────
+.env
+*.env.local
+*.env.*.local
+
+# ─── Backend ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.Python
+pip-wheel-metadata/
+
+# Alembic auto-generated (keep versions/ tracked)
+alembic/versions/*.pyc
+
+# ─── Frontend ────────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# ─── Docker ──────────────────────────────────────────────────────────────────
+# Keep docker-compose.yml tracked; ignore override files
+docker-compose.override.yml
+
+# ─── OS / Editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
