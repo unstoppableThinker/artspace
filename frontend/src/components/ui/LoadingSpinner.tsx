@@ -8,20 +8,14 @@ interface LoadingSpinnerProps {
 export default function LoadingSpinner({ size = 24, fullPage = false }: LoadingSpinnerProps) {
   const spinner = (
     <div
-      style={{
-        width: size,
-        height: size,
-        border: '2px solid #e5e5e5',
-        borderTopColor: '#111',
-        borderRadius: '50%',
-        animation: 'spin 0.7s linear infinite',
-      }}
+      className="border-2 border-neutral-200 border-t-ink rounded-full animate-spin"
+      style={{ width: size, height: size }}
     />
   );
 
   if (fullPage) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <div className="flex justify-center items-center min-h-[60vh]">
         {spinner}
       </div>
     );

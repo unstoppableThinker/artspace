@@ -47,19 +47,15 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!username) return;
     setLoadingPosts(true);
-    postsApi.getUserPosts(username)
-      .then(setPosts)
-      .finally(() => setLoadingPosts(false));
+    postsApi.getUserPosts(username).then(setPosts).finally(() => setLoadingPosts(false));
   }, [username]);
 
   useEffect(() => {
     if (isOwnProfile || !profile) return;
-    friendsApi.getFriends().then((friends) => {
-      setIsFriend(friends.some((f) => f.id === profile.id));
-    });
-    friendsApi.getOutgoingRequests().then((reqs) => {
-      setRequestSent(reqs.some((r) => r.receiver.id === profile.id));
-    });
+    friendsApi.getFriends().then((friends) => setIsFriend(friends.some((f) => f.id === profile.id)));
+    friendsApi.getOutgoingRequests().then((reqs) =>
+      setRequestSent(reqs.some((r) => r.receiver.id === profile.id))
+    );
   }, [profile, isOwnProfile]);
 
   const sendRequest = async () => {
@@ -74,15 +70,12 @@ export default function ProfilePage() {
   };
 
   const saveEdit = async () => {
-    setSaving(true);
-    setEditError('');
+    setSaving(true); setEditError('');
     try {
       await usersApi.updateProfile(editForm);
       await refreshUser();
       setEditOpen(false);
-      if (editForm.username !== username) {
-        navigate(`/profile/${editForm.username}`);
-      }
+      if (editForm.username !== username) navigate(`/profile/${editForm.username}`);
     } catch (err) {
       setEditError(extractError(err));
     } finally {
@@ -113,67 +106,45 @@ export default function ProfilePage() {
   return (
     <Layout>
       {/* Profile header */}
-      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', marginBottom: 40, paddingBottom: 32, borderBottom: '1px solid #e5e5e5' }}>
-        {/* Avatar */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="flex gap-6 items-start mb-10 pb-8 border-b border-neutral-200">
+        {/* Avatar with upload button */}
+        <div className="relative flex-shrink-0">
           <Avatar src={profile.profile_picture_url} username={profile.username} size={88} />
           {isOwnProfile && (
             <>
               <button
                 onClick={() => avatarRef.current?.click()}
                 disabled={uploadingAvatar}
-                style={{
-                  position: 'absolute', bottom: 0, right: 0,
-                  background: '#111', color: '#fff', border: 'none',
-                  borderRadius: '50%', width: 24, height: 24, fontSize: 12,
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
+                className="absolute bottom-0 right-0 w-6 h-6 bg-ink text-white rounded-full text-xs flex items-center justify-center border-none cursor-pointer disabled:opacity-50"
               >
                 {uploadingAvatar ? '…' : '↑'}
               </button>
-              <input
-                ref={avatarRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleAvatarChange}
-              />
+              <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </>
           )}
         </div>
 
         {/* Info */}
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
-            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>{profile.username}</h1>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-wrap mb-2">
+            <h1 className="text-xl font-semibold text-ink">{profile.username}</h1>
             {isOwnProfile ? (
               <Button variant="secondary" size="sm" onClick={openEdit}>Edit profile</Button>
+            ) : isFriend ? (
+              <span className="text-xs text-ink-muted px-2.5 py-1 border border-neutral-200 rounded">Friends</span>
+            ) : requestSent ? (
+              <span className="text-xs text-ink-muted">Request sent</span>
             ) : (
-              <>
-                {isFriend ? (
-                  <span style={{ fontSize: 12, color: '#737373', padding: '4px 10px', border: '1px solid #e5e5e5', borderRadius: 3 }}>
-                    Friends
-                  </span>
-                ) : requestSent ? (
-                  <span style={{ fontSize: 12, color: '#737373' }}>Request sent</span>
-                ) : (
-                  <Button size="sm" onClick={sendRequest}>+ Add friend</Button>
-                )}
-              </>
+              <Button size="sm" onClick={sendRequest}>+ Add friend</Button>
             )}
           </div>
           {profile.bio && (
-            <p style={{ margin: '0 0 8px', fontSize: 14, color: '#525252', lineHeight: 1.6, maxWidth: 400 }}>
-              {profile.bio}
-            </p>
+            <p className="text-sm text-ink-soft leading-relaxed max-w-sm mb-2">{profile.bio}</p>
           )}
-          <p style={{ margin: 0, fontSize: 12, color: '#a3a3a3' }}>
-            {posts.length} post{posts.length !== 1 ? 's' : ''}
-          </p>
+          <p className="text-xs text-ink-faint">{posts.length} post{posts.length !== 1 ? 's' : ''}</p>
         </div>
       </div>
 
-      {/* Posts */}
       <PostGrid
         posts={posts}
         loading={loadingPosts}
@@ -183,9 +154,8 @@ export default function ProfilePage() {
         emptyDescription={isOwnProfile ? 'Share your first work.' : `${profile.username} hasn't posted yet.`}
       />
 
-      {/* Edit profile modal */}
       <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit profile">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
           <Input
             label="Username"
             value={editForm.username}
@@ -198,8 +168,8 @@ export default function ProfilePage() {
             placeholder="Tell people about your practice…"
             rows={3}
           />
-          {editError && <p style={{ margin: 0, fontSize: 13, color: '#ef4444' }}>{editError}</p>}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          {editError && <p className="text-sm text-red-500">{editError}</p>}
+          <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
             <Button onClick={saveEdit} loading={saving}>Save</Button>
           </div>

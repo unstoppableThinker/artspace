@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Post } from 'types';
 import { timelineApi } from 'api/timeline';
 import { postsApi } from 'api/posts';
-import { extractError } from 'api/client';
 import { useAuth } from 'context/AuthContext';
 import Layout from 'components/layout/Layout';
 import PostGrid from 'components/post/PostGrid';
@@ -23,11 +22,8 @@ export default function HomePage() {
   const fetchPage = useCallback(async (p: number) => {
     try {
       const data = await timelineApi.getTimeline(p);
-      if (p === 1) {
-        setPosts(data);
-      } else {
-        setPosts((prev) => [...prev, ...data]);
-      }
+      if (p === 1) setPosts(data);
+      else setPosts((prev) => [...prev, ...data]);
       setHasMore(data.length === 20);
     } catch {
       setHasMore(false);
@@ -59,13 +55,10 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+      <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, fontFamily: "'Playfair Display', serif" }}>Feed</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#737373' }}>
-            Posts from tags you follow, then everything else
-          </p>
+          <h1 className="font-serif text-2xl font-semibold text-ink leading-none">Feed</h1>
+          <p className="text-sm text-ink-muted mt-1">Posts from tags you follow, then everything else</p>
         </div>
         <Button onClick={() => setShowCreate(true)} size="sm">+ New post</Button>
       </div>
@@ -85,7 +78,7 @@ export default function HomePage() {
       />
 
       {hasMore && !loading && (
-        <div style={{ textAlign: 'center', marginTop: 32 }}>
+        <div className="text-center mt-8">
           <Button variant="secondary" onClick={loadMore} loading={loadingMore}>
             Load more
           </Button>

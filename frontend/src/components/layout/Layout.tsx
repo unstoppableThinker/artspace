@@ -3,14 +3,14 @@ import Navbar from './Navbar';
 
 interface LayoutProps {
   children: React.ReactNode;
-  maxWidth?: number;
+  narrow?: boolean;
 }
 
-export default function Layout({ children, maxWidth = 680 }: LayoutProps) {
+export default function Layout({ children, narrow = true }: LayoutProps) {
   return (
-    <div style={{ minHeight: '100vh', background: '#fff' }}>
+    <div className="min-h-screen bg-white">
       <Navbar />
-      <main style={{ maxWidth, margin: '0 auto', padding: '32px 16px 80px' }}>
+      <main className={`mx-auto px-4 pt-8 pb-20 ${narrow ? 'max-w-2xl' : 'max-w-4xl'}`}>
         {children}
       </main>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const FEATURE_ROWS = [
+const FEATURES = [
   {
     label: 'Share your work',
     body: 'Upload images and videos. Add context, captions, and tags. Build a living portfolio that speaks for itself.',
@@ -16,103 +16,73 @@ const FEATURE_ROWS = [
   },
 ];
 
+const TAGS = [
+  'painting','sculpture','photography','digital-art',
+  'illustration','printmaking','ceramics','street-art',
+  'abstract','portrait','landscape','contemporary',
+];
+
 export default function LandingPage() {
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", color: '#111' }}>
-      {/* ── Nav ─────────────────────────────────────────────────────────── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: '#fff', borderBottom: '1px solid #e5e5e5',
-        padding: '0 32px', height: 56,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em' }}>
-          Artspace
-        </span>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Link to="/login" style={{ textDecoration: 'none', fontSize: 13, color: '#525252' }}>Sign in</Link>
-          <Link to="/register" style={{
-            textDecoration: 'none', fontSize: 13, fontWeight: 500,
-            padding: '7px 20px', background: '#111', color: '#fff', borderRadius: 3,
-          }}>
+    <div className="font-sans text-ink">
+
+      {/* Nav */}
+      <nav className="sticky top-0 z-40 bg-white border-b border-neutral-200 px-8 h-14 flex items-center justify-between">
+        <span className="font-serif text-[22px] font-semibold tracking-tight">Artspace</span>
+        <div className="flex items-center gap-4">
+          <Link to="/login" className="text-sm text-ink-soft no-underline hover:text-ink transition-colors">
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            className="text-sm font-medium px-5 py-2 bg-ink text-white rounded no-underline hover:bg-neutral-800 transition-colors"
+          >
             Join free
           </Link>
         </div>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section style={{
-        background: '#111', color: '#fff',
-        minHeight: '70vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-        padding: '80px 24px',
-      }}>
-        <p style={{ fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#737373', margin: '0 0 20px' }}>
+      {/* Hero */}
+      <section className="bg-ink text-white min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20">
+        <p className="text-xs tracking-[0.2em] uppercase text-neutral-500 mb-5">
           A social platform for artists
         </p>
-        <h1 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: 'clamp(42px, 7vw, 86px)',
-          fontWeight: 600, lineHeight: 1.05,
-          margin: '0 0 28px', maxWidth: 760,
-          letterSpacing: '-0.02em',
-        }}>
-          Where art finds<br />
-          <em>its audience.</em>
+        <h1 className="font-serif font-semibold leading-[1.05] tracking-tight mb-7 max-w-3xl"
+            style={{ fontSize: 'clamp(42px, 7vw, 86px)' }}>
+          Where art finds<br /><em>its audience.</em>
         </h1>
-        <p style={{ fontSize: 16, color: '#a3a3a3', maxWidth: 480, lineHeight: 1.7, margin: '0 0 40px' }}>
+        <p className="text-base text-neutral-400 max-w-md leading-relaxed mb-10">
           Share your practice. Discover emerging artists. Build meaningful connections around the work that matters.
         </p>
-        <Link to="/register" style={{
-          textDecoration: 'none', fontSize: 15, fontWeight: 500,
-          padding: '14px 36px', background: '#fff', color: '#111',
-          borderRadius: 3, letterSpacing: '0.02em',
-        }}>
+        <Link
+          to="/register"
+          className="text-sm font-medium px-9 py-3.5 bg-white text-ink rounded no-underline hover:bg-neutral-100 transition-colors tracking-wide"
+        >
           Create your space
         </Link>
       </section>
 
-      {/* ── Exhibition-style feature strip ────────────────────────────────── */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 32px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '1px',
-          border: '1px solid #e5e5e5',
-        }}>
-          {FEATURE_ROWS.map((f, i) => (
-            <div
-              key={i}
-              style={{
-                padding: '40px 32px',
-                borderRight: i < FEATURE_ROWS.length - 1 ? '1px solid #e5e5e5' : 'none',
-              }}
-            >
-              <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a3a3a3', margin: '0 0 16px' }}>
-                0{i + 1}
-              </p>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 600, margin: '0 0 12px', lineHeight: 1.2 }}>
-                {f.label}
-              </h3>
-              <p style={{ fontSize: 14, color: '#525252', lineHeight: 1.7, margin: 0 }}>{f.body}</p>
+      {/* Feature strip */}
+      <section className="max-w-5xl mx-auto px-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 border border-neutral-200 divide-y md:divide-y-0 md:divide-x divide-neutral-200">
+          {FEATURES.map((f, i) => (
+            <div key={i} className="p-8 md:p-10">
+              <p className="text-[11px] tracking-[0.15em] uppercase text-ink-faint mb-4">0{i + 1}</p>
+              <h3 className="font-serif text-xl font-semibold mb-3 leading-snug">{f.label}</h3>
+              <p className="text-sm text-ink-soft leading-relaxed">{f.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Tag cloud ─────────────────────────────────────────────────────── */}
-      <section style={{ background: '#fafafa', padding: '64px 32px', textAlign: 'center', borderTop: '1px solid #e5e5e5', borderBottom: '1px solid #e5e5e5' }}>
-        <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a3a3a3', margin: '0 0 28px' }}>
-          Explore by practice
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', maxWidth: 600, margin: '0 auto' }}>
-          {['painting', 'sculpture', 'photography', 'digital-art', 'illustration', 'printmaking', 'ceramics', 'street-art', 'abstract', 'portrait', 'landscape', 'contemporary'].map((t) => (
+      {/* Tag cloud */}
+      <section className="bg-neutral-50 border-y border-neutral-200 py-16 px-8 text-center">
+        <p className="text-[11px] tracking-[0.2em] uppercase text-ink-faint mb-7">Explore by practice</p>
+        <div className="flex flex-wrap gap-2 justify-center max-w-xl mx-auto">
+          {TAGS.map((t) => (
             <span
               key={t}
-              style={{
-                padding: '6px 14px', border: '1px solid #d4d4d4', borderRadius: 2,
-                fontSize: 12, color: '#525252', letterSpacing: '0.04em',
-              }}
+              className="px-3.5 py-1.5 border border-neutral-300 rounded-sm text-xs text-ink-soft tracking-widest lowercase"
             >
               #{t}
             </span>
@@ -120,31 +90,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
-      <section style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 600, margin: '0 0 20px', letterSpacing: '-0.02em' }}>
+      {/* CTA */}
+      <section className="text-center px-6 py-20">
+        <h2
+          className="font-serif font-semibold tracking-tight mb-5 leading-tight"
+          style={{ fontSize: 'clamp(28px, 5vw, 48px)' }}
+        >
           Your contemporary art partner.
         </h2>
-        <p style={{ fontSize: 15, color: '#525252', maxWidth: 420, margin: '0 auto 32px', lineHeight: 1.7 }}>
+        <p className="text-sm text-ink-soft max-w-sm mx-auto mb-8 leading-relaxed">
           Artspace is free to join. Start sharing your work today.
         </p>
-        <Link to="/register" style={{
-          textDecoration: 'none', fontSize: 14, fontWeight: 500,
-          padding: '12px 32px', background: '#111', color: '#fff', borderRadius: 3,
-        }}>
+        <Link
+          to="/register"
+          className="text-sm font-medium px-8 py-3 bg-ink text-white rounded no-underline hover:bg-neutral-800 transition-colors"
+        >
           Get started
         </Link>
       </section>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '1px solid #e5e5e5', background: '#111', color: '#737373',
-        padding: '32px', textAlign: 'center',
-      }}>
-        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: '#fff', letterSpacing: '-0.02em' }}>
-          Artspace
-        </span>
-        <p style={{ fontSize: 12, margin: '12px 0 0' }}>
+      {/* Footer */}
+      <footer className="bg-ink text-neutral-500 border-t border-neutral-800 px-8 py-8 text-center">
+        <span className="font-serif text-lg text-white tracking-tight">Artspace</span>
+        <p className="text-xs mt-3">
           © {new Date().getFullYear()} Artspace. A minimalist social network for artists.
         </p>
       </footer>

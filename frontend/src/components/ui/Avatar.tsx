@@ -14,15 +14,8 @@ export default function Avatar({ src, username, size = 40 }: AvatarProps) {
       <img
         src={src}
         alt={username}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          objectFit: 'cover',
-          border: '1px solid #e5e5e5',
-          flexShrink: 0,
-          display: 'block',
-        }}
+        className="rounded-full object-cover border border-neutral-200 flex-shrink-0 block"
+        style={{ width: size, height: size }}
       />
     );
   }
@@ -30,20 +23,8 @@ export default function Avatar({ src, username, size = 40 }: AvatarProps) {
   return (
     <div
       aria-label={username}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: '#111',
-        color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: size * 0.4,
-        fontWeight: 600,
-        flexShrink: 0,
-        userSelect: 'none',
-      }}
+      className="rounded-full bg-ink text-white flex items-center justify-center font-semibold flex-shrink-0 select-none"
+      style={{ width: size, height: size, fontSize: size * 0.4 }}
     >
       {initial}
     </div>

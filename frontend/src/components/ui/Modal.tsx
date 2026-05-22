@@ -25,41 +25,26 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 560
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.45)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 16,
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#fff',
-          borderRadius: 6,
-          width: '100%',
-          maxWidth,
-          maxHeight: '90vh',
-          overflow: 'auto',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-        }}
+        className="bg-white rounded w-full overflow-auto shadow-2xl"
+        style={{ maxWidth, maxHeight: '90vh' }}
       >
         {title && (
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '20px 24px 0',
-          }}>
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{title}</h2>
+          <div className="flex items-center justify-between px-6 pt-5">
+            <h2 className="text-lg font-semibold text-ink">{title}</h2>
             <button
               onClick={onClose}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#666', padding: 4, lineHeight: 1 }}
               aria-label="Close"
+              className="text-ink-faint hover:text-ink text-xl leading-none p-1 transition-colors"
             >
               ×
             </button>
           </div>
         )}
-        <div style={{ padding: 24 }}>{children}</div>
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );

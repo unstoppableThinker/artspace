@@ -11,21 +11,16 @@ interface UserCardProps {
 export default function UserCard({ user, action }: UserCardProps) {
   const navigate = useNavigate();
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 0', borderBottom: '1px solid #f5f5f5',
-    }}>
+    <div className="flex items-center justify-between py-3.5 border-b border-neutral-100 last:border-0">
       <div
-        style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+        className="flex items-center gap-3 cursor-pointer"
         onClick={() => navigate(`/profile/${user.username}`)}
       >
         <Avatar src={user.profile_picture_url} username={user.username} size={44} />
         <div>
-          <p style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>{user.username}</p>
+          <p className="text-sm font-semibold text-ink">{user.username}</p>
           {user.bio && (
-            <p style={{ margin: '2px 0 0', fontSize: 13, color: '#737373', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user.bio}
-            </p>
+            <p className="text-xs text-ink-muted mt-0.5 max-w-[260px] truncate">{user.bio}</p>
           )}
         </div>
       </div>

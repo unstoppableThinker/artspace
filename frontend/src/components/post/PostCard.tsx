@@ -12,8 +12,7 @@ interface PostCardProps {
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export default function PostCard({ post, onDelete, currentUserId }: PostCardProps) {
@@ -25,45 +24,31 @@ export default function PostCard({ post, onDelete, currentUserId }: PostCardProp
   const firstMedia = post.media[activeMedia];
 
   return (
-    <article style={{
-      border: '1px solid #e5e5e5',
-      borderRadius: 4,
-      overflow: 'hidden',
-      background: '#fff',
-      marginBottom: 1,
-    }}>
+    <article className="border border-neutral-200 rounded overflow-hidden bg-white mb-px">
+
       {/* Media */}
       {firstMedia && (
-        <div style={{ position: 'relative', background: '#f5f5f5', aspectRatio: '4/3', overflow: 'hidden' }}>
+        <div className="relative bg-neutral-100 aspect-[4/3] overflow-hidden">
           {firstMedia.media_type === 'video' ? (
-            <video
-              src={firstMedia.media_url}
-              controls
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            <video src={firstMedia.media_url} controls className="w-full h-full object-cover" />
           ) : (
             <img
               src={firstMedia.media_url}
               alt={post.caption || 'Post media'}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              className="w-full h-full object-cover block"
               loading="lazy"
             />
           )}
-          {/* Thumbnail strip for multiple media */}
           {post.media.length > 1 && (
-            <div style={{
-              position: 'absolute', bottom: 8, left: 0, right: 0,
-              display: 'flex', justifyContent: 'center', gap: 4,
-            }}>
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
               {post.media.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveMedia(i)}
-                  style={{
-                    width: 6, height: 6, borderRadius: '50%',
-                    background: i === activeMedia ? '#fff' : 'rgba(255,255,255,0.5)',
-                    border: 'none', padding: 0, cursor: 'pointer',
-                  }}
+                  className={[
+                    'w-1.5 h-1.5 rounded-full border-none p-0 cursor-pointer transition-colors',
+                    i === activeMedia ? 'bg-white' : 'bg-white/50',
+                  ].join(' ')}
                 />
               ))}
             </div>
@@ -71,23 +56,23 @@ export default function PostCard({ post, onDelete, currentUserId }: PostCardProp
         </div>
       )}
 
-      <div style={{ padding: '16px' }}>
+      <div className="p-4">
         {/* Author row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div className="flex items-center justify-between mb-3">
           <div
-            style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+            className="flex items-center gap-2.5 cursor-pointer"
             onClick={() => navigate(`/profile/${post.author.username}`)}
           >
             <Avatar src={post.author.profile_picture_url} username={post.author.username} size={36} />
             <div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: 13 }}>{post.author.username}</p>
-              <p style={{ margin: 0, fontSize: 11, color: '#a3a3a3' }}>{formatDate(post.created_at)}</p>
+              <p className="text-xs font-semibold text-ink leading-none">{post.author.username}</p>
+              <p className="text-[11px] text-ink-faint mt-0.5">{formatDate(post.created_at)}</p>
             </div>
           </div>
           {isOwner && onDelete && (
             <button
               onClick={() => onDelete(post.id)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a3a3a3', fontSize: 12, padding: '4px 8px' }}
+              className="text-xs text-ink-faint hover:text-red-500 bg-transparent border-none cursor-pointer px-2 py-1 transition-colors"
             >
               Delete
             </button>
@@ -96,14 +81,12 @@ export default function PostCard({ post, onDelete, currentUserId }: PostCardProp
 
         {/* Caption */}
         {post.caption && (
-          <p style={{ margin: '0 0 12px', fontSize: 14, lineHeight: 1.6, color: '#111' }}>
-            {post.caption}
-          </p>
+          <p className="text-sm leading-relaxed text-ink mb-3">{post.caption}</p>
         )}
 
         {/* Tags */}
         {post.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+          <div className="flex flex-wrap gap-1 mb-3">
             {post.tags.map((tag) => (
               <TagBadge key={tag.id} name={tag.name} size="sm" />
             ))}
@@ -113,17 +96,16 @@ export default function PostCard({ post, onDelete, currentUserId }: PostCardProp
         {/* Comment toggle */}
         <button
           onClick={() => setShowComments(!showComments)}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 12, color: '#737373', padding: 0,
-          }}
+          className="text-xs text-ink-muted bg-transparent border-none cursor-pointer p-0 hover:text-ink transition-colors"
         >
-          {post.comment_count > 0 ? `${post.comment_count} comment${post.comment_count !== 1 ? 's' : ''}` : 'Add a comment'}
-          {showComments ? ' ▲' : ' ▼'}
+          {post.comment_count > 0
+            ? `${post.comment_count} comment${post.comment_count !== 1 ? 's' : ''}`
+            : 'Add a comment'}
+          {' '}{showComments ? '▲' : '▼'}
         </button>
 
         {showComments && (
-          <div style={{ marginTop: 12 }}>
+          <div className="mt-3">
             <CommentSection postId={post.id} currentUserId={currentUserId} />
           </div>
         )}

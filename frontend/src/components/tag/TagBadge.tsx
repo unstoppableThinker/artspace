@@ -8,32 +8,17 @@ interface TagBadgeProps {
 }
 
 export default function TagBadge({ name, onClick, active = false, size = 'md' }: TagBadgeProps) {
-  const isButton = !!onClick;
-  const style: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: size === 'sm' ? '2px 8px' : '4px 10px',
-    borderRadius: 2,
-    fontSize: size === 'sm' ? 11 : 12,
-    fontWeight: 500,
-    letterSpacing: '0.04em',
-    textTransform: 'lowercase',
-    cursor: isButton ? 'pointer' : 'default',
-    border: '1px solid',
-    borderColor: active ? '#111' : '#d4d4d4',
-    background: active ? '#111' : 'transparent',
-    color: active ? '#fff' : '#525252',
-    transition: 'all 0.12s',
-    userSelect: 'none',
-  };
+  const base = [
+    'inline-flex items-center border rounded-sm tracking-widest lowercase select-none transition-all duration-150',
+    size === 'sm' ? 'text-[11px] px-2 py-0.5' : 'text-xs px-2.5 py-1',
+    active
+      ? 'bg-ink text-white border-ink'
+      : 'bg-transparent text-ink-soft border-neutral-300',
+    onClick ? 'cursor-pointer hover:border-ink hover:text-ink' : '',
+  ].join(' ');
 
-  if (isButton) {
-    return (
-      <button onClick={onClick} style={{ ...style, background: active ? '#111' : 'transparent' }}>
-        #{name}
-      </button>
-    );
+  if (onClick) {
+    return <button onClick={onClick} className={base}>#{name}</button>;
   }
-
-  return <span style={style}>#{name}</span>;
+  return <span className={base}>#{name}</span>;
 }

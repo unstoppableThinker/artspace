@@ -26,17 +26,11 @@ export default function PostGrid({
   if (loading) return <LoadingSpinner fullPage />;
 
   if (posts.length === 0) {
-    return (
-      <EmptyState
-        title={emptyTitle}
-        description={emptyDescription}
-        action={emptyAction}
-      />
-    );
+    return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <div className="flex flex-col gap-px">
       {posts.map((post) => (
         <PostCard
           key={post.id}

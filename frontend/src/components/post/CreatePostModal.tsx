@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import Modal from 'components/ui/Modal';
 import Button from 'components/ui/Button';
 import { Textarea } from 'components/ui/Input';
-import TagBadge from 'components/tag/TagBadge';
 import { postsApi } from 'api/posts';
 import { extractError } from 'api/client';
 import { Post } from 'types';
@@ -24,21 +23,16 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
   const fileRef = useRef<HTMLInputElement>(null);
 
   const addTag = () => {
-    const t = tagInput.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '');
+    const t = tagInput.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (t && !tags.includes(t)) setTags((prev) => [...prev, t]);
     setTagInput('');
   };
-
-  const removeTag = (name: string) => setTags((prev) => prev.filter((t) => t !== name));
 
   const handleFiles = (selected: FileList | null) => {
     if (!selected) return;
     const arr = Array.from(selected);
     setFiles((prev) => [...prev, ...arr]);
-    arr.forEach((f) => {
-      const url = URL.createObjectURL(f);
-      setPreviews((prev) => [...prev, url]);
-    });
+    arr.forEach((f) => setPreviews((prev) => [...prev, URL.createObjectURL(f)]));
   };
 
   const reset = () => {
@@ -64,56 +58,51 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="New post" maxWidth={600}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* Media upload */}
-        <div>
-          <div
-            onClick={() => fileRef.current?.click()}
-            style={{
-              border: '1.5px dashed #d4d4d4', borderRadius: 4,
-              padding: previews.length ? 8 : 40,
-              textAlign: 'center', cursor: 'pointer',
-              background: '#fafafa',
-              transition: 'border-color 0.15s',
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
-          >
-            {previews.length > 0 ? (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {previews.map((p, i) => (
-                  <div key={i} style={{ position: 'relative' }}>
-                    <img src={p} alt="" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 3, display: 'block' }} />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFiles((prev) => prev.filter((_, j) => j !== i));
-                        setPreviews((prev) => prev.filter((_, j) => j !== i));
-                      }}
-                      style={{ position: 'absolute', top: 2, right: 2, background: '#000', color: '#fff', border: 'none', borderRadius: '50%', width: 18, height: 18, fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                <div style={{ width: 80, height: 80, border: '1px dashed #d4d4d4', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#d4d4d4' }}>+</div>
+      <div className="flex flex-col gap-5">
+
+        {/* Drop zone */}
+        <div
+          onClick={() => fileRef.current?.click()}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
+          className="border-2 border-dashed border-neutral-300 rounded cursor-pointer hover:border-ink transition-colors bg-neutral-50"
+        >
+          {previews.length > 0 ? (
+            <div className="flex flex-wrap gap-2 p-2">
+              {previews.map((p, i) => (
+                <div key={i} className="relative">
+                  <img src={p} alt="" className="w-20 h-20 object-cover rounded block" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFiles((prev) => prev.filter((_, j) => j !== i));
+                      setPreviews((prev) => prev.filter((_, j) => j !== i));
+                    }}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-ink text-white text-[10px] rounded-full flex items-center justify-center border-none cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <div className="w-20 h-20 border border-dashed border-neutral-300 rounded flex items-center justify-center text-2xl text-neutral-300">
+                +
               </div>
-            ) : (
-              <>
-                <p style={{ margin: '0 0 4px', fontSize: 14, color: '#525252' }}>Drag & drop or click to upload</p>
-                <p style={{ margin: 0, fontSize: 12, color: '#a3a3a3' }}>Images and videos supported</p>
-              </>
-            )}
-          </div>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            style={{ display: 'none' }}
-            onChange={(e) => handleFiles(e.target.files)}
-          />
+            </div>
+          ) : (
+            <div className="py-10 text-center">
+              <p className="text-sm text-ink-soft mb-1">Drag & drop or click to upload</p>
+              <p className="text-xs text-ink-faint">Images and videos supported</p>
+            </div>
+          )}
         </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
 
         {/* Caption */}
         <Textarea
@@ -126,42 +115,35 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
 
         {/* Tags */}
         <div>
-          <label style={{ fontSize: 13, fontWeight: 500, color: '#111', display: 'block', marginBottom: 6 }}>Tags</label>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+          <label className="text-xs font-medium text-ink tracking-wide block mb-1.5">Tags</label>
+          <div className="flex gap-2 mb-2">
             <input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); } }}
               placeholder="Add tag and press Enter"
-              style={{
-                flex: 1, border: '1px solid #d4d4d4', borderRadius: 4,
-                padding: '8px 10px', fontSize: 13, outline: 'none',
-              }}
+              className="flex-1 border border-neutral-300 rounded px-3 py-2 text-sm outline-none focus:border-ink transition-colors"
             />
             <Button variant="secondary" size="sm" onClick={addTag} type="button">Add</Button>
           </div>
           {tags.length > 0 && (
-            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap gap-1.5">
               {tags.map((t) => (
                 <button
                   key={t}
-                  onClick={() => removeTag(t)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    padding: '3px 8px', borderRadius: 2, border: '1px solid #111',
-                    background: '#111', color: '#fff', fontSize: 12, cursor: 'pointer',
-                  }}
+                  onClick={() => setTags((prev) => prev.filter((x) => x !== t))}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-ink text-white text-xs rounded-sm border-none cursor-pointer tracking-wider lowercase"
                 >
-                  #{t} <span style={{ fontSize: 10 }}>×</span>
+                  #{t} <span className="text-[10px]">×</span>
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {error && <p style={{ margin: 0, fontSize: 13, color: '#ef4444' }}>{error}</p>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <div className="flex gap-2 justify-end">
           <Button variant="ghost" onClick={handleClose} disabled={loading}>Cancel</Button>
           <Button onClick={submit} loading={loading}>Publish</Button>
         </div>

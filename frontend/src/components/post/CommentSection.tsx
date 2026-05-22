@@ -51,62 +51,54 @@ export default function CommentSection({ postId, currentUserId }: CommentSection
     setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
-  if (loading) return <p style={{ fontSize: 12, color: '#a3a3a3', margin: 0 }}>Loading…</p>;
+  if (loading) return <p className="text-xs text-ink-faint">Loading…</p>;
 
   return (
     <div>
       {comments.length === 0 && (
-        <p style={{ fontSize: 12, color: '#a3a3a3', margin: '0 0 12px' }}>No comments yet.</p>
+        <p className="text-xs text-ink-faint mb-3">No comments yet.</p>
       )}
 
       {comments.map((c) => (
-        <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+        <div key={c.id} className="flex gap-2 mb-2.5">
           <Avatar src={c.author.profile_picture_url} username={c.author.username} size={28} />
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <span style={{ fontWeight: 600, fontSize: 12 }}>{c.author.username}</span>
-              <span style={{ fontSize: 11, color: '#a3a3a3' }}>{timeAgo(c.created_at)}</span>
+          <div className="flex-1">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs font-semibold text-ink">{c.author.username}</span>
+              <span className="text-[11px] text-ink-faint">{timeAgo(c.created_at)}</span>
               {currentUserId === c.author.id && (
                 <button
                   onClick={() => remove(c.id)}
-                  style={{ fontSize: 11, color: '#a3a3a3', background: 'none', border: 'none', cursor: 'pointer', marginLeft: 4, padding: 0 }}
+                  className="text-[11px] text-ink-faint hover:text-ink ml-1 bg-transparent border-none cursor-pointer p-0 transition-colors"
                 >
                   ×
                 </button>
               )}
             </div>
-            <p style={{ margin: '2px 0 0', fontSize: 13, color: '#111', lineHeight: 1.5 }}>{c.content}</p>
+            <p className="mt-0.5 text-sm text-ink leading-relaxed">{c.content}</p>
           </div>
         </div>
       ))}
 
-      {/* New comment form */}
       {currentUserId && (
-        <form onSubmit={submit} style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <form onSubmit={submit} className="flex gap-2 mt-2">
           <input
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment…"
             disabled={submitting}
-            style={{
-              flex: 1, border: 'none', borderBottom: '1px solid #e5e5e5',
-              padding: '6px 0', fontSize: 13, outline: 'none', background: 'transparent',
-            }}
+            className="flex-1 border-0 border-b border-neutral-200 py-1.5 text-sm text-ink outline-none bg-transparent placeholder:text-ink-faint focus:border-ink transition-colors"
           />
           <button
             type="submit"
             disabled={submitting || !newComment.trim()}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 12, fontWeight: 600, color: '#111',
-              opacity: submitting || !newComment.trim() ? 0.4 : 1,
-            }}
+            className="text-xs font-semibold text-ink bg-transparent border-none cursor-pointer disabled:opacity-40 transition-opacity"
           >
             Post
           </button>
         </form>
       )}
-      {error && <p style={{ fontSize: 12, color: '#ef4444', margin: '6px 0 0' }}>{error}</p>}
+      {error && <p className="text-xs text-red-500 mt-1.5">{error}</p>}
     </div>
   );
 }

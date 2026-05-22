@@ -30,26 +30,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#fff', padding: 24,
-    }}>
-      <div style={{ width: '100%', maxWidth: 380 }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <h1 style={{
-            fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 600,
-            margin: '0 0 40px', color: '#111', textAlign: 'center', letterSpacing: '-0.02em',
-          }}>
-            Artspace
-          </h1>
+    <div className="min-h-screen flex items-center justify-center bg-white px-6">
+      <div className="w-full max-w-sm">
+
+        <Link to="/" className="no-underline block text-center mb-10">
+          <h1 className="font-serif text-3xl font-semibold text-ink tracking-tight">Artspace</h1>
         </Link>
 
-        <h2 style={{ fontSize: 22, fontWeight: 600, margin: '0 0 6px' }}>Welcome back</h2>
-        <p style={{ fontSize: 14, color: '#737373', margin: '0 0 28px' }}>
-          Sign in to your account
-        </p>
+        <h2 className="text-xl font-semibold text-ink mb-1">Welcome back</h2>
+        <p className="text-sm text-ink-muted mb-7">Sign in to your account</p>
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={submit} className="flex flex-col gap-4">
           <Input
             label="Email"
             type="email"
@@ -69,19 +60,17 @@ export default function LoginPage() {
           />
 
           {error && (
-            <p style={{ margin: 0, fontSize: 13, color: '#ef4444', padding: '10px 12px', background: '#fef2f2', borderRadius: 4 }}>
-              {error}
-            </p>
+            <p className="text-sm text-red-500 bg-red-50 px-3 py-2.5 rounded">{error}</p>
           )}
 
-          <Button type="submit" loading={loading} size="lg" style={{ width: '100%', marginTop: 4 }}>
+          <Button type="submit" loading={loading} size="lg" className="w-full mt-1">
             Sign in
           </Button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: '#737373' }}>
+        <p className="text-center mt-6 text-sm text-ink-muted">
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: '#111', fontWeight: 500, textDecoration: 'none' }}>
+          <Link to="/register" className="text-ink font-medium no-underline hover:underline">
             Join Artspace
           </Link>
         </p>

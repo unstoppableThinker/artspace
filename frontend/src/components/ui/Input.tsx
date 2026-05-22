@@ -8,35 +8,25 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export default function Input({ label, error, id, className = '', ...props }: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="flex flex-col gap-1.5">
       {label && (
-        <label
-          htmlFor={inputId}
-          style={{ fontSize: 13, fontWeight: 500, color: '#111', letterSpacing: '0.01em' }}
-        >
+        <label htmlFor={inputId} className="text-xs font-medium text-ink tracking-wide">
           {label}
         </label>
       )}
       <input
         id={inputId}
-        style={{
-          width: '100%',
-          padding: '10px 12px',
-          border: `1px solid ${error ? '#ef4444' : '#d4d4d4'}`,
-          borderRadius: 4,
-          fontSize: 14,
-          color: '#111',
-          background: '#fff',
-          outline: 'none',
-          transition: 'border-color 0.15s',
-          boxSizing: 'border-box',
-        }}
-        className={className}
+        className={[
+          'w-full px-3 py-2.5 text-sm text-ink bg-white',
+          'border rounded outline-none transition-colors duration-150',
+          'placeholder:text-neutral-400',
+          'focus:border-ink',
+          error ? 'border-red-400' : 'border-neutral-300',
+          className,
+        ].join(' ')}
         {...props}
       />
-      {error && (
-        <span style={{ fontSize: 12, color: '#ef4444' }}>{error}</span>
-      )}
+      {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   );
 }
@@ -46,37 +36,28 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   error?: string;
 }
 
-export function Textarea({ label, error, id, ...props }: TextareaProps) {
+export function Textarea({ label, error, id, className = '', ...props }: TextareaProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="flex flex-col gap-1.5">
       {label && (
-        <label
-          htmlFor={inputId}
-          style={{ fontSize: 13, fontWeight: 500, color: '#111' }}
-        >
+        <label htmlFor={inputId} className="text-xs font-medium text-ink tracking-wide">
           {label}
         </label>
       )}
       <textarea
         id={inputId}
-        style={{
-          width: '100%',
-          padding: '10px 12px',
-          border: `1px solid ${error ? '#ef4444' : '#d4d4d4'}`,
-          borderRadius: 4,
-          fontSize: 14,
-          color: '#111',
-          background: '#fff',
-          outline: 'none',
-          resize: 'vertical',
-          minHeight: 100,
-          fontFamily: 'inherit',
-          boxSizing: 'border-box',
-        }}
+        className={[
+          'w-full px-3 py-2.5 text-sm text-ink bg-white',
+          'border rounded outline-none resize-y min-h-[100px]',
+          'font-sans placeholder:text-neutral-400',
+          'focus:border-ink transition-colors duration-150',
+          error ? 'border-red-400' : 'border-neutral-300',
+          className,
+        ].join(' ')}
         {...props}
       />
-      {error && <span style={{ fontSize: 12, color: '#ef4444' }}>{error}</span>}
+      {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   );
 }

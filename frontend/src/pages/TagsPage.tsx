@@ -13,19 +13,14 @@ export default function TagsPage() {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    tagsApi.getAllTags()
-      .then(setTags)
-      .finally(() => setLoading(false));
+    tagsApi.getAllTags().then(setTags).finally(() => setLoading(false));
   }, []);
 
   const toggle = async (tag: Tag) => {
     setToggling(tag.id);
     try {
-      if (tag.is_followed) {
-        await tagsApi.unfollowTag(tag.id);
-      } else {
-        await tagsApi.followTag(tag.id);
-      }
+      if (tag.is_followed) await tagsApi.unfollowTag(tag.id);
+      else await tagsApi.followTag(tag.id);
       setTags((prev) =>
         prev.map((t) =>
           t.id === tag.id
@@ -38,18 +33,15 @@ export default function TagsPage() {
     }
   };
 
-  const filtered = tags.filter((t) =>
-    t.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  const followed = tags.filter((t) => t.is_followed);
+  const filtered = tags.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()));
+  const followedCount = tags.filter((t) => t.is_followed).length;
 
   return (
-    <Layout maxWidth={760}>
-      <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 600, fontFamily: "'Playfair Display', serif" }}>Tags</h1>
-      <p style={{ margin: '0 0 28px', fontSize: 14, color: '#737373' }}>
+    <Layout narrow={false}>
+      <h1 className="font-serif text-2xl font-semibold text-ink mb-1">Tags</h1>
+      <p className="text-sm text-ink-muted mb-6">
         Follow tags to personalise your feed.
-        {followed.length > 0 && ` You follow ${followed.length} tag${followed.length !== 1 ? 's' : ''}.`}
+        {followedCount > 0 && ` You follow ${followedCount} tag${followedCount !== 1 ? 's' : ''}.`}
       </p>
 
       {/* Search */}
@@ -57,11 +49,7 @@ export default function TagsPage() {
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Search tags…"
-        style={{
-          width: '100%', border: '1px solid #e5e5e5', borderRadius: 4,
-          padding: '10px 14px', fontSize: 14, outline: 'none',
-          marginBottom: 24, boxSizing: 'border-box',
-        }}
+        className="w-full border border-neutral-200 rounded px-4 py-2.5 text-sm outline-none focus:border-ink transition-colors mb-6"
       />
 
       {loading ? (
@@ -69,26 +57,15 @@ export default function TagsPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title="No tags found" />
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: 1,
-          border: '1px solid #e5e5e5',
-        }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-px border border-neutral-200 bg-neutral-200">
           {filtered.map((tag) => (
             <div
               key={tag.id}
-              style={{
-                padding: '16px 20px',
-                borderRight: '1px solid #e5e5e5',
-                borderBottom: '1px solid #e5e5e5',
-                background: tag.is_followed ? '#fafafa' : '#fff',
-                display: 'flex', flexDirection: 'column', gap: 10,
-              }}
+              className={`flex flex-col gap-3 p-5 ${tag.is_followed ? 'bg-neutral-50' : 'bg-white'}`}
             >
               <div>
-                <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: 14 }}>#{tag.name}</p>
-                <p style={{ margin: 0, fontSize: 12, color: '#a3a3a3' }}>
+                <p className="text-sm font-semibold text-ink">#{tag.name}</p>
+                <p className="text-xs text-ink-faint mt-0.5">
                   {tag.follower_count} follower{tag.follower_count !== 1 ? 's' : ''}
                 </p>
               </div>
