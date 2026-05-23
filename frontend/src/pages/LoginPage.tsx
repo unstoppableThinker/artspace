@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from 'context/AuthContext';
+import { useAppDispatch } from 'store/hooks';
+import { loginWithToken } from 'store/slices/authSlice';
 import { authApi } from 'api/auth';
 import { extractError } from 'api/client';
 import Input from 'components/ui/Input';
 import Button from 'components/ui/Button';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +21,7 @@ export default function LoginPage() {
     setError('');
     try {
       const { access_token } = await authApi.login(email, password);
-      await login(access_token);
+      await dispatch(loginWithToken(access_token));
       navigate('/feed');
     } catch (err) {
       setError(extractError(err));

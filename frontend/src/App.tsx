@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from 'context/AuthContext';
+import { Provider } from 'react-redux';
+import { store } from 'store';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { fetchCurrentUser } from 'store/slices/authSlice';
 import LandingPage from 'pages/LandingPage';
 import LoginPage from 'pages/LoginPage';
 import RegisterPage from 'pages/RegisterPage';
@@ -11,16 +14,28 @@ import TagsPage from 'pages/TagsPage';
 import LoadingSpinner from 'components/ui/LoadingSpinner';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <LoadingSpinner fullPage />;
+  const { user, status } = useAppSelector((s) => s.auth);
+  if (status === 'loading') return <LoadingSpinner fullPage />;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <LoadingSpinner fullPage />;
+  const { user, status } = useAppSelector((s) => s.auth);
+  if (status === 'loading') return <LoadingSpinner fullPage />;
   if (user) return <Navigate to="/feed" replace />;
+  return <>{children}</>;
+}
+
+function AppInit({ children }: { children: React.ReactNode }) {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (localStorage.getItem('access_token')) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch]);
+
   return <>{children}</>;
 }
 
@@ -46,10 +61,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <AppInit>
+          <AppRoutes />
+        </AppInit>
+      </BrowserRouter>
+    </Provider>
   );
 }

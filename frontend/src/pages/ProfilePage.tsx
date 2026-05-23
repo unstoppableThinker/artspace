@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Post } from 'types';
-import { usersApi } from 'api/users';
-import { postsApi } from 'api/posts';
-import { friendsApi } from 'api/friends';
-import { extractError } from 'api/client';
-import { useAuth } from 'context/AuthContext';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { fetchCurrentUser } from 'store/slices/authSlice';
+import {
+  fetchProfile,
+  fetchProfilePosts,
+  checkFriendStatus,
+  sendFriendRequest,
+  updateProfile,
+  uploadAvatar,
+  deleteProfilePost,
+  clearProfile,
+  setEditOpen,
+  setEditForm,
+} from 'store/slices/profileSlice';
 import Layout from 'components/layout/Layout';
 import Avatar from 'components/ui/Avatar';
 import Button from 'components/ui/Button';
@@ -17,87 +25,59 @@ import LoadingSpinner from 'components/ui/LoadingSpinner';
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const { user: currentUser, refreshUser } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [profile, setProfile] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loadingProfile, setLoadingProfile] = useState(true);
-  const [loadingPosts, setLoadingPosts] = useState(true);
-  const [isFriend, setIsFriend] = useState(false);
-  const [requestSent, setRequestSent] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ username: '', bio: '' });
-  const [saving, setSaving] = useState(false);
-  const [editError, setEditError] = useState('');
-  const avatarRef = useRef<HTMLInputElement>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const currentUser = useAppSelector((s) => s.auth.user);
+  const {
+    profile,
+    posts,
+    loadingProfile,
+    loadingPosts,
+    isFriend,
+    requestSent,
+    editOpen,
+    editForm,
+    saving,
+    editError,
+    uploadingAvatar,
+  } = useAppSelector((s) => s.profile);
 
+  const avatarRef = useRef<HTMLInputElement>(null);
   const isOwnProfile = currentUser?.username === username;
 
   useEffect(() => {
     if (!username) return;
-    setLoadingProfile(true);
-    usersApi.getProfile(username)
-      .then(setProfile)
-      .catch(() => navigate('/feed'))
-      .finally(() => setLoadingProfile(false));
-  }, [username, navigate]);
-
-  useEffect(() => {
-    if (!username) return;
-    setLoadingPosts(true);
-    postsApi.getUserPosts(username).then(setPosts).finally(() => setLoadingPosts(false));
-  }, [username]);
+    dispatch(clearProfile());
+    dispatch(fetchProfile(username))
+      .unwrap()
+      .catch(() => navigate('/feed'));
+    dispatch(fetchProfilePosts(username));
+  }, [username, dispatch, navigate]);
 
   useEffect(() => {
     if (isOwnProfile || !profile) return;
-    friendsApi.getFriends().then((friends) => setIsFriend(friends.some((f) => f.id === profile.id)));
-    friendsApi.getOutgoingRequests().then((reqs) =>
-      setRequestSent(reqs.some((r) => r.receiver.id === profile.id))
-    );
-  }, [profile, isOwnProfile]);
-
-  const sendRequest = async () => {
-    if (!profile) return;
-    await friendsApi.sendRequest(profile.id);
-    setRequestSent(true);
-  };
+    dispatch(checkFriendStatus(profile.id));
+  }, [profile, isOwnProfile, dispatch]);
 
   const openEdit = () => {
-    setEditForm({ username: currentUser?.username || '', bio: currentUser?.bio || '' });
-    setEditOpen(true);
+    dispatch(setEditForm({ username: currentUser?.username ?? '', bio: currentUser?.bio ?? '' }));
+    dispatch(setEditOpen(true));
   };
 
   const saveEdit = async () => {
-    setSaving(true); setEditError('');
-    try {
-      await usersApi.updateProfile(editForm);
-      await refreshUser();
-      setEditOpen(false);
+    const result = await dispatch(updateProfile(editForm));
+    if (updateProfile.fulfilled.match(result)) {
+      dispatch(fetchCurrentUser());
       if (editForm.username !== username) navigate(`/profile/${editForm.username}`);
-    } catch (err) {
-      setEditError(extractError(err));
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingAvatar(true);
-    try {
-      await usersApi.uploadAvatar(file);
-      await refreshUser();
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    await postsApi.deletePost(postId);
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
+    await dispatch(uploadAvatar(file));
+    dispatch(fetchCurrentUser());
   };
 
   if (loadingProfile) return <Layout><LoadingSpinner fullPage /></Layout>;
@@ -135,7 +115,7 @@ export default function ProfilePage() {
             ) : requestSent ? (
               <span className="text-xs text-ink-muted">Request sent</span>
             ) : (
-              <Button size="sm" onClick={sendRequest}>+ Add friend</Button>
+              <Button size="sm" onClick={() => dispatch(sendFriendRequest(profile.id))}>+ Add friend</Button>
             )}
           </div>
           {profile.bio && (
@@ -148,29 +128,29 @@ export default function ProfilePage() {
       <PostGrid
         posts={posts}
         loading={loadingPosts}
-        onDelete={isOwnProfile ? handleDeletePost : undefined}
+        onDelete={isOwnProfile ? (id) => dispatch(deleteProfilePost(id)) : undefined}
         currentUserId={currentUser?.id}
         emptyTitle="No posts yet"
         emptyDescription={isOwnProfile ? 'Share your first work.' : `${profile.username} hasn't posted yet.`}
       />
 
-      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit profile">
+      <Modal isOpen={editOpen} onClose={() => dispatch(setEditOpen(false))} title="Edit profile">
         <div className="flex flex-col gap-4">
           <Input
             label="Username"
             value={editForm.username}
-            onChange={(e) => setEditForm((p) => ({ ...p, username: e.target.value }))}
+            onChange={(e) => dispatch(setEditForm({ username: e.target.value }))}
           />
           <Textarea
             label="Bio"
             value={editForm.bio}
-            onChange={(e) => setEditForm((p) => ({ ...p, bio: e.target.value }))}
+            onChange={(e) => dispatch(setEditForm({ bio: e.target.value }))}
             placeholder="Tell people about your practice…"
             rows={3}
           />
           {editError && <p className="text-sm text-red-500">{editError}</p>}
           <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => dispatch(setEditOpen(false))}>Cancel</Button>
             <Button onClick={saveEdit} loading={saving}>Save</Button>
           </div>
         </div>

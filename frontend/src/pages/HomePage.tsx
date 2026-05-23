@@ -1,56 +1,34 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Post } from 'types';
-import { timelineApi } from 'api/timeline';
-import { postsApi } from 'api/posts';
-import { useAuth } from 'context/AuthContext';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { fetchFeedPage, deleteFeedPost, setShowCreate, prependPost } from 'store/slices/feedSlice';
 import Layout from 'components/layout/Layout';
 import PostGrid from 'components/post/PostGrid';
 import Button from 'components/ui/Button';
 import CreatePostModal from 'components/post/CreatePostModal';
+import { Post } from 'types';
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
-
-  const fetchPage = useCallback(async (p: number) => {
-    try {
-      const data = await timelineApi.getTimeline(p);
-      if (p === 1) setPosts(data);
-      else setPosts((prev) => [...prev, ...data]);
-      setHasMore(data.length === 20);
-    } catch {
-      setHasMore(false);
-    }
-  }, []);
+  const user = useAppSelector((s) => s.auth.user);
+  const { posts, status, page, hasMore, showCreate } = useAppSelector((s) => s.feed);
 
   useEffect(() => {
-    setLoading(true);
-    fetchPage(1).finally(() => setLoading(false));
-  }, [fetchPage]);
+    dispatch(fetchFeedPage(1));
+  }, [dispatch]);
 
-  const loadMore = async () => {
-    const next = page + 1;
-    setPage(next);
-    setLoadingMore(true);
-    await fetchPage(next);
-    setLoadingMore(false);
+  const loadMore = () => {
+    dispatch(fetchFeedPage(page + 1));
   };
 
-  const handleDelete = async (postId: string) => {
-    await postsApi.deletePost(postId);
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  const handleDelete = (postId: string) => {
+    dispatch(deleteFeedPost(postId));
   };
 
   const handlePostCreated = (post: Post) => {
-    setPosts((prev) => [post, ...prev]);
-    setShowCreate(false);
+    dispatch(prependPost(post));
+    dispatch(setShowCreate(false));
   };
 
   return (
@@ -60,12 +38,12 @@ export default function HomePage() {
           <h1 className="font-serif text-2xl font-semibold text-ink leading-none">Feed</h1>
           <p className="text-sm text-ink-muted mt-1">Posts from tags you follow, then everything else</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} size="sm">+ New post</Button>
+        <Button onClick={() => dispatch(setShowCreate(true))} size="sm">+ New post</Button>
       </div>
 
       <PostGrid
         posts={posts}
-        loading={loading}
+        loading={status === 'loading'}
         onDelete={handleDelete}
         currentUserId={user?.id}
         emptyTitle="Your feed is empty"
@@ -77,9 +55,9 @@ export default function HomePage() {
         }
       />
 
-      {hasMore && !loading && (
+      {hasMore && status !== 'loading' && (
         <div className="text-center mt-8">
-          <Button variant="secondary" onClick={loadMore} loading={loadingMore}>
+          <Button variant="secondary" onClick={loadMore} loading={status === 'loadingMore'}>
             Load more
           </Button>
         </div>
@@ -87,7 +65,7 @@ export default function HomePage() {
 
       <CreatePostModal
         isOpen={showCreate}
-        onClose={() => setShowCreate(false)}
+        onClose={() => dispatch(setShowCreate(false))}
         onCreated={handlePostCreated}
       />
     </Layout>

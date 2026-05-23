@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from 'context/AuthContext';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { logout } from 'store/slices/authSlice';
 import Avatar from 'components/ui/Avatar';
 import CreatePostModal from 'components/post/CreatePostModal';
 import { Post } from 'types';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((s) => s.auth.user);
   const navigate = useNavigate();
   const location = useLocation();
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -85,7 +87,7 @@ export default function Navbar() {
                       </button>
                       <div className="border-t border-neutral-100" />
                       <button
-                        onClick={logout}
+                        onClick={() => dispatch(logout())}
                         className="w-full text-left px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-neutral-50 transition-colors"
                       >
                         Sign out

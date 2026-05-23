@@ -1,39 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { FriendRequest, User } from 'types';
-import { friendsApi } from 'api/friends';
+import React, { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import {
+  loadFriends,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  removeFriend,
+} from 'store/slices/friendsSlice';
 import Layout from 'components/layout/Layout';
 import UserCard from 'components/user/UserCard';
 import Button from 'components/ui/Button';
 import LoadingSpinner from 'components/ui/LoadingSpinner';
 import EmptyState from 'components/ui/EmptyState';
+import { useState } from 'react';
 
 type Tab = 'incoming' | 'friends' | 'outgoing';
 
 export default function FriendsPage() {
+  const dispatch = useAppDispatch();
+  const { friends, incoming, outgoing, status } = useAppSelector((s) => s.friends);
   const [tab, setTab] = useState<Tab>('incoming');
-  const [friends, setFriends] = useState<User[]>([]);
-  const [incoming, setIncoming] = useState<FriendRequest[]>([]);
-  const [outgoing, setOutgoing] = useState<FriendRequest[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const reload = () => {
-    setLoading(true);
-    Promise.all([
-      friendsApi.getFriends(),
-      friendsApi.getIncomingRequests(),
-      friendsApi.getOutgoingRequests(),
-    ]).then(([f, inc, out]) => {
-      setFriends(f); setIncoming(inc); setOutgoing(out);
-    }).finally(() => setLoading(false));
+  useEffect(() => {
+    dispatch(loadFriends());
+  }, [dispatch]);
+
+  const accept = async (id: string) => {
+    await dispatch(acceptFriendRequest(id));
+    dispatch(loadFriends());
   };
 
-  useEffect(() => { reload(); }, []);
+  const reject = async (id: string) => {
+    await dispatch(rejectFriendRequest(id));
+    dispatch(loadFriends());
+  };
 
-  const accept = async (id: string) => { await friendsApi.acceptRequest(id); reload(); };
-  const reject = async (id: string) => { await friendsApi.rejectRequest(id); reload(); };
-  const unfriend = async (id: string) => {
-    await friendsApi.removeFriend(id);
-    setFriends((prev) => prev.filter((f) => f.id !== id));
+  const unfriend = (id: string) => {
+    dispatch(removeFriend(id));
   };
 
   const tabCls = (t: Tab) =>
@@ -62,7 +64,7 @@ export default function FriendsPage() {
         <button className={tabCls('outgoing')} onClick={() => setTab('outgoing')}>Sent</button>
       </div>
 
-      {loading ? (
+      {status === 'loading' ? (
         <LoadingSpinner fullPage />
       ) : (
         <>

@@ -1,37 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Tag } from 'types';
-import { tagsApi } from 'api/tags';
+import React, { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'store/hooks';
+import { fetchTags, toggleTag, setFilter } from 'store/slices/tagsSlice';
 import Layout from 'components/layout/Layout';
 import Button from 'components/ui/Button';
 import LoadingSpinner from 'components/ui/LoadingSpinner';
 import EmptyState from 'components/ui/EmptyState';
 
 export default function TagsPage() {
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState<string | null>(null);
-  const [filter, setFilter] = useState('');
+  const dispatch = useAppDispatch();
+  const { tags, status, toggling, filter } = useAppSelector((s) => s.tags);
 
   useEffect(() => {
-    tagsApi.getAllTags().then(setTags).finally(() => setLoading(false));
-  }, []);
-
-  const toggle = async (tag: Tag) => {
-    setToggling(tag.id);
-    try {
-      if (tag.is_followed) await tagsApi.unfollowTag(tag.id);
-      else await tagsApi.followTag(tag.id);
-      setTags((prev) =>
-        prev.map((t) =>
-          t.id === tag.id
-            ? { ...t, is_followed: !t.is_followed, follower_count: t.follower_count + (t.is_followed ? -1 : 1) }
-            : t
-        )
-      );
-    } finally {
-      setToggling(null);
-    }
-  };
+    dispatch(fetchTags());
+  }, [dispatch]);
 
   const filtered = tags.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()));
   const followedCount = tags.filter((t) => t.is_followed).length;
@@ -47,12 +28,12 @@ export default function TagsPage() {
       {/* Search */}
       <input
         value={filter}
-        onChange={(e) => setFilter(e.target.value)}
+        onChange={(e) => dispatch(setFilter(e.target.value))}
         placeholder="Search tags…"
         className="w-full border border-neutral-200 rounded px-4 py-2.5 text-sm outline-none focus:border-ink transition-colors mb-6"
       />
 
-      {loading ? (
+      {status === 'loading' ? (
         <LoadingSpinner fullPage />
       ) : filtered.length === 0 ? (
         <EmptyState title="No tags found" />
@@ -73,7 +54,7 @@ export default function TagsPage() {
                 variant={tag.is_followed ? 'secondary' : 'primary'}
                 size="sm"
                 loading={toggling === tag.id}
-                onClick={() => toggle(tag)}
+                onClick={() => dispatch(toggleTag(tag))}
               >
                 {tag.is_followed ? 'Following' : 'Follow'}
               </Button>
